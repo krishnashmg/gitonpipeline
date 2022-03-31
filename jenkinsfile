@@ -1,0 +1,107 @@
+pipeline
+{
+    agent any
+    stages
+    {
+        stage('continuous download')
+        {
+         steps
+         {
+             script
+             {
+                 try
+                 {
+                   git 'https://github.com/intelliqittrainings/maven.git'  
+                 }
+                 catch(Exception e1)
+                 {
+                     mail bcc: 'ssss', body: 'jenkins failed', cc: 'sss', from: '', replyTo: '', subject: 'dddddd', to: 'krishnashmg@gmail.com'
+                     exit(1)
+                     
+                 }
+             }
+         }
+        }
+        stage('continuous build')
+        {
+            steps
+            {
+                script
+                {
+                    try
+                    {
+                       sh 'mvn package' 
+                    }
+                    catch(Exception e2)
+                    {
+                      mail bcc: 'ssss', body: 'jenkins failed', cc: 'sss', from: '', replyTo: '', subject: 'dddddd', to: 'krishnashmg@gmail.com'  
+                    exit(1)               
+                        
+                    }
+                }
+            }
+        }
+        stage('continuous deployment')
+        {
+            steps
+            {
+                script
+                {
+                    try
+                    {
+                       deploy adapters: [tomcat9(credentialsId: 'b87d961e-a82d-4516-b93a-7121d2b372db', path: '', url: 'http://172.31.34.117:8080')], contextPath: 'app1', war: '**/*.war' 
+                    }
+                    catch(Exception e3)
+                    {
+                     mail bcc: 'ssss', body: 'jenkins failed', cc: 'sss', from: '', replyTo: '', subject: 'dddddd', to: 'krishnashmg@gmail.com'     
+                       exit(1) 
+                    }
+                }
+            }
+            
+        }
+        
+        stage('continuous testing')
+        {
+            steps
+            {
+                script
+                {
+                    try
+                    {
+                       git 'https://github.com/intelliqittrainings/FunctionalTesting.git'
+                       sh 'java -jar /var/lib/jenkins/workspace/declarativepipeline/testing.jar'
+                    }
+                    catch(Exception e4)
+                    {
+                        mail bcc: 'ssss', body: 'jenkins failed', cc: 'sss', from: '', replyTo: '', subject: 'dddddd', to: 'krishnashmg@gmail.com'     
+                        exit(1)
+                    }
+                }
+            }
+        }
+        stage('continuous delivery')
+        {
+            steps
+            {
+                script
+                {
+                    try
+                    {
+                      deploy adapters: [tomcat9(credentialsId: 'b87d961e-a82d-4516-b93a-7121d2b372db', path: '', url: 'http://65.0.132.173:8080')], contextPath: 'app2', war: '**/*.war'  
+                    }
+                    catch(Exception e5)
+                    {
+                        
+                    }
+                }
+            }
+            
+        }
+        
+        
+    }
+}
+         
+         
+         
